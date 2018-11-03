@@ -4,6 +4,11 @@ Date:      October 31, 2018
 @:         University of Tulsa
 
 Question #11: 
+
+    What is the greatest product of four adjacent 
+    numbers in the same direction (up, down, left, right, or diagonally) in the 20×20 grid?
+
+
 Example: (below)
 
 In the 20×20 grid below, four numbers along a diagonal line have been marked in red. (put in ||)
@@ -30,6 +35,70 @@ In the 20×20 grid below, four numbers along a diagonal line have been marked in
 01 70 54 71 83 51 54 69 16 92 33 48 61 43 52 01 89 19 67 48
 
 The product of these numbers is 26 × 63 × 78 × 14 = 1788696.
-'''
 
+'''
+#takes a space seperated  newline seperated row text file of numbers and turns it into a 2d array
+def parse_file_grid(filename):
+    #legit one of the coolest lines of code i think i have written... ( technically i wrote it out then converted it to a 1 liner)
+    #but it is still cool ... readability = readibility- number of lines lost :/
+    return list(map(lambda row:list( map(int,row)), list(map(lambda ln: ln.split(" "),open(filename,"r").readlines()))))
+
+#retruns the product of a list
+def prod_list(l):
+    p=1
+    for num in l:
+        p = p*num
+    return p
+
+#main program
 if __name__=="__main__":
+    length_of_sequence=4
+    #read the grid from the file
+    grid = parse_file_grid("11_number.txt")
+    #print(grid)
+
+    #current largest corresponding Product:
+    p_max = 0
+
+    #iterate
+    l = len(grid)#asuming grid is square
+    for i in range(0,l-length_of_sequence+1):#ensure not out of bounds for the iteratin
+        for j in range(0,l-length_of_sequence+1):
+            #print(str(i)+" "+ str(j))
+            #check the cases..
+            '''
+                horizontal a,b sequences ,diagonal sequences,vertical a,b sequences
+                    _____
+                    | \/ | b
+                    | /\ |
+                 a  -----
+            '''
+            all_cases=[]
+            #horizontals                        ______________                                | 
+            all_cases = all_cases+ [grid[i][j:j+length_of_sequence],grid[i+length_of_sequence-1][j:j+length_of_sequence]]
+            #diagonal
+            diagonal_sequence_a = []
+            diagonal_sequence_b = []
+            for k in range(0,length_of_sequence):
+                diagonal_sequence_a.append(grid[i+k][j+k])#NOTE to self: corrected a mistake here grid[i+k][j+k] not grid[i+k][i+k] 
+                diagonal_sequence_b.append(grid[i+k][j+length_of_sequence-1-k]) #use j as the cordinate for the iteration
+            all_cases = all_cases+ [diagonal_sequence_a,diagonal_sequence_b]
+            #vertical
+            vertical_sequence_a=[]
+            vertical_sequence_b=[]
+            for m in range(0,length_of_sequence):
+                vertical_sequence_a.append(grid[i+m][j])
+                vertical_sequence_b.append(grid[i+m][j+length_of_sequence-1])
+            all_cases = all_cases+ [vertical_sequence_a,vertical_sequence_b]
+
+            #calculate the products
+            prods = list(map(prod_list,all_cases))
+            #print(str(all_cases))
+            #find the index of the max
+            item_index = prods.index(max(prods))
+            #reassign the max for the grid if greater
+            if prods[item_index]>p_max:
+                p_max = prods[item_index]
+    print(str(p_max))
+
+
