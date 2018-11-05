@@ -44,7 +44,7 @@ def sieveOfEratosthenes(N):
     while(i<len(currentNumbers) and i<n_root):
         j=1
         p = currentNumbers[i]#the current prime
-        print("removing for prime="+str(p))
+        #print("removing for prime="+str(p))
         while(i+j<len(currentNumbers)):#exclude the prime at i therefore j is 1 initially not 0
             currentNum = currentNumbers[i+j]    
             if currentNum//p == currentNum/p:#test if divides ..if so delete
@@ -55,6 +55,14 @@ def sieveOfEratosthenes(N):
                 j = j+1
         i = i+1
     return currentNumbers
+
+#made while working on 12.py in case a list of primes from a file is needed...
+def savePrimes(N,fileName):
+    f = open(filename,"w+")
+    primes_str = reduce(lambda x,y: y + str(x), sieveOfEratosthenes(N))
+    f.write(primes_str)
+    f.close()
+
 
 if __name__=="__main__":
     '''
