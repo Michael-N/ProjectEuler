@@ -39,99 +39,75 @@ the maximum total from top to bottom is 23.
 
 That is, 3 + 7 + 4 + 9 = 23.
 '''
-import sys
-
-#finds the avg over all all items in a 2D array
-def findAvg2D(a_list):
-    all_nums = reduce(lambda row,all_nums: all_nums+row,a_list )
-    return reduce(lambda x,sum: x+sum, all_nums)/len(all_nums)
-
-def normalize(a_list):
-    l = math.sqrt(reduce(lambda x,y: x*x+y,a_list))
-    return list(map(lambda x: x/l,a_list))
-
-#makes a (deep) copy of an array
-def deepCopyTwoD(twoDarray):
-    copy_array=[]
-    current_row=[]
-    for i in range(0,len(twoDarray)):
-        for j in range(0,len(twoDarray[i])):
-            current_row.append(twoDarray[i][j])
-        copy_array.append(current_row)
-        current_row=[]
-    return copy_array
-
-#get the max of a 1D array... returns -1 if error
-def getMaxIndex(oneDarray,exclude_indicies):
-    max = -sys.maxsize-1
-    indx=-1
-    for i in range(0,len(oneDarray)):
-        test_val = oneDarray[i]
-        #test value anyway... bc the seccond condition is a loop check... short circuit eval might
-        #                     prevent a long check if the item is not even the max when exclude list is
-        #                     large
-        if (test_val>max) and (i not in exclude_indicies):
-            max = test_val
-            indx= i
-    return indx
-
-#find decending value index --> [3,1,5] ==> [2,0,1] (indicies with highest values first)
-def findValueDecendingIndicies(oneDarray):
-    orderDecendingIndicies=[]
-    for indx in range(0,len(oneDarray)):
-        x = getMaxIndex(oneDarray,exclude_indicies=orderDecendingIndicies)
-        orderDecendingIndicies.append(x)
-    return orderDecendingIndicies
-
-#get a list of Decending array values 1d example... 
-def findValueDecendingIndiciesTwoD(twoDarray):
-    orderDecendingIndicies=[]
-    for row in twoDarray:
-        #the one dimensional version...
-        orderDecendingIndicies.append(findValueDecendingIndicies(row))
-    return orderDecendingIndicies
-            
 
 if __name__=="__main__":
+
     from functools import reduce
+
     #read the pyramid from a file... returns a nested array where the tip of the pyramid is at index 0... 
-    pyramid=list(map(lambda row: list(map(lambda num_str: int(num_str),row.split(" "))),open("18_number.txt","r").readlines()))
+    pyramid=list(map(lambda row: list(map(lambda num_str: [int(num_str),None],row.split(" "))),open("18_number.txt","r").readlines()))
+    '''
+
+    NOTE! the pyramid is represented as a jagged tripple array: here is the form of the data...
+
+    pyramid=[
+        [ITEM]
+        [ITEM,ITEM]
+        [ITEM,ITEM,ITEM]
+        ...
+        [ITEM,ITEM,ITEM,...,ITEM]
+    ]
+    where each ITEM=[NUMBER,MAX_ANCESTOR_SUM]
+
+    ex.. here the pyramid is inverted...
+
+    [[88, False], [02, False], [77, False], [73, False], [07, False], [63, False], [67, False]]    (TOP LEVEL)
+    [[19, False], [01, False], [23, False], [75, False], [03, False], [34, False]]
+    [[20, False], [04, False], [82, False], [47, False], [65, False]]
+    [[18, False], [35, False], [87, False], [10, False]]
+    [[17, False], [47, False], [82, False]]
+    [[95, False], [64, False]]
+    [[75, False]]                                                                                   (BOTTOM LEVEL)
+
+    note it decreases by one element each time... my new dynamic programming approach is to
+    look at an element... if it is in the top level of the pyramid (assuming it is inverted as like above) 
+    then the max_sum value (depicted as FALSE ---> will be changed to None in code revision) should be the 
+    current item value, and otherwise should pick the greatest ancestor sum and add itself
+
+    PSUDOCODE:
+        iterate through each level
+            if first (top) level then path sum for each element is its own number value
+            otherwise on all other levels take the max of the two adjacent elements in the previous level and add that
+            to the current element path sum
+
+    example:
+
+    [[17, 17], [47, 47], [82, 82]]   #top level so init path sum to element value
+    [[95, 142], [64, 146]] # 47>17 so do 95+47=142 for the first   and    82>47 so do 64+82=146
+    [[75, False]]# 146> 124 so do 146 + 75 = 221 and since this is the last level (bottom) we are done       
 
     
-    '''My Algorithm
-    _____________________
-    1.) set a value s= 2D array Avg
-    2.) subtract s from every item in a copy of the 2D array
-    3.) look for paths... from the bottom up memorizing how in each iteration how many are above the avg or below the avg... 
-        ... ?
-
-       My Algorithm 2.0
-    ________________________
-    1.) store in a seperate array the indicies of the numbers in each row arranged by their corresponding number in decreasing order
-        ... place indicies with higher values first in the list...
-    3.) use that indicies list to assign number priority taking the number from the 
-    2.) starting from the bottom pick rows iterate through the indicies list and check if the number is a valid path (check that array len)
-    3.) if it is then continue to the next and select .... till the end is reached...
-
     '''
-    #for indx in reversed(range(0,len(indexData[rowIndex]))):#start(ed) from the bottom 
-    #picks an item from each row starting from the bottom iterating upwards recursivly .....
-    def selectItem(twoDarray,indexData,rowIndex,prevItemIndex,chain=[]):
-        
-            '''
-            since the length of the next row in the data i always 1 less in length than the row below it...
-            therfore valid selection indicies as a binary decision are 
-            the current row M  index F as context: valid choices for M+1(row above)
+    
+    
+    #Note a dynamic programming strategy is used but it is just easier to keep track of that info with the item
+    # [number,bestSum] ..... note could do [number,bestSum,ancestor] to determine the path...
+    for level in reversed(range(0,len(pyramid))):
+        #First level so best possible sum is that item...
+        if level== len(pyramid)-1:
+            for idx in range(0,len(pyramid[level])):
+                pyramid[level][idx][1] = pyramid[level][idx][0]
+        else:#otherwise for each item place the max of the previous two items.... above it
+            for idx in range(0,len(pyramid[level])):#assuming pyramid shrinks by one element each time...
+                #max of the two levels above
+                max_ancestor_sum = max(pyramid[level+1][idx][1], pyramid[level+1][idx+1][1])
+                pyramid[level][idx][1] = max_ancestor_sum + pyramid[level][idx][0]
+    #the now max sum of the entire pyramid is now at the tip of the pyramid ...
+    max_path_sum=pyramid[0][0][1]
+    print(max_path_sum)
 
-                  m+1   * * * * *         0 1 2 3 4
-                  m    * * * * * *       0 1 2 3 4 5    as F
 
-                  valid choices are  F-1 if F-1>0 and f if F<len(m+1)
-            
-            '''
-            if not prevItemIndex-1 <0:
-                
+    
 
-        #now we are here
 
     
