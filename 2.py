@@ -13,15 +13,16 @@ def binet(n):
     partial = math.pow(phiPos,n)
     return int((math.pow(phiPos,n) - (1/math.pow(-phiPos,n)))/math.sqrt(5))
 
-sum=0
-i=0
-while True:
-    t = binet(i)
-    print(str(i)+":  "+str(t))
-    if t>3999999:#not exceed mil
-        break
-    if t%2==0:
-        sum+=t
-    i+=1
+if __name__=="__main__":
+    sum=0
+    i=0
+    while True:
+        t = binet(i)
+        print(str(i)+":  "+str(t))
+        if t>3999999:#not exceed mil
+            break
+        if t%2==0:
+            sum+=t
+        i+=1
 
-print(sum)
+    print(sum)

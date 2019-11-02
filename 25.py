@@ -57,27 +57,26 @@ if __name__ == "__main__":
 
     =============================================================
     New approach .... is brute force really that bad ? 
+
+    possible issues: loss of precision using binet's formula
+    '''
+    #A constant to hold the max digit count
+    DIGIT_COUNT = 1000
+    '''
+    #Keep track of the index .. (note Binet formula F(1)=F(2)=1 so the indicies are not off by 1...)
+    index=1
+    #Infinate loop
+    while True:
+        print(index)
+        #Be careful when getting the length here ... two.binet for large values of index may loose precision or explode (to use a non technical term)
+        l = digit_count(two.binet(index))
+        #If we hit our desired property break the loop
+        if l == DIGIT_COUNT:
+            break
+        #Otherwise increment the index and try again
+        index+=1
+    #The program only terminates when we get a result
+    print(index)
     '''
 
-    DIGIT_COUNT = 1000
 
-    #============= (1) Establish a Max and a Min Bound
-
-    # Iterate Exponentially(2) to find a max bound
-    max = 1
-    while(digit_count(two.binet(max))<=DIGIT_COUNT):
-        max *=2
-    
-\
-
-    #============= (2) Recursivly search the space but only exit if the min bound meets the condition...
-    #if the max bound meets the condition then split min min to max and only look left... 
-    def fiboDigitBinaryIndexSearch(min,max,max_digit_count,look_left=False):
-        #searches for the nth fibonacci number withine the max min range and tries
-        #to find the nth fibo with that digit count...
-        if look_left:
-            
-
-    
-
-    
