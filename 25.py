@@ -33,7 +33,7 @@ two = __import__("2")
 def digit_count(n):
     #counts how many digits in the number
     return len(str(n))
-
+      
 if __name__ == "__main__":
     '''
     my approach ... use f(n) = binets formula ... figure out how to limit the search space
@@ -78,5 +78,27 @@ if __name__ == "__main__":
     #The program only terminates when we get a result
     print(index)
     '''
+
+    #iterative approach
+    prev1=1#F(1)
+    prev2=1#F(2)
+    nextNum=None
+    index=3#thus we are on index 3...
+    while True:
+        #Calculate the next number in the sequence
+        nextNum = prev2 + prev1
+        prev1 = prev2
+        prev2 = nextNum
+        
+        #Check if it meets the condition
+        l = digit_count(prev2)
+        if l >= DIGIT_COUNT: 
+            # it might be that the nth term jumps from n digits to n+2 or more digits ... so
+            # use >= not just ==
+            break
+        #Increment the index: 
+        index+=1 
+    print(index)
+    
 
 
